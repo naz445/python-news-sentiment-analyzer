@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from collections import Counter
+import matplotlib.pyplot as plt
 
 
 # ---------------------------------------------------------
@@ -92,10 +93,12 @@ def extract_headlines(url: str, limit: int = 12) -> list[str]:
 
 
 def get_bbc_headlines(limit: int = 12) -> list[str]:
+    """Returns BBC News headlines."""
     return extract_headlines("https://www.bbc.com/news", limit)
 
 
 def get_guardian_headlines(limit: int = 12) -> list[str]:
+    """Returns The Guardian UK headlines."""
     return extract_headlines("https://www.theguardian.com/uk", limit)
 
 
@@ -139,6 +142,52 @@ def print_summary(results: list[dict]) -> None:
         print(f"  Negative: {dist.get('Negative', 0)}")
 
 
+# ---------------------------------------------------------
+#  Visualisation
+# ---------------------------------------------------------
+
+def plot_sentiment_chart(results: list[dict]) -> None:
+    """
+    Generates a grouped bar chart comparing sentiment counts
+    (Positive / Neutral / Negative) across all news sources.
+    """
+    if not results:
+        return
+
+    sources = []
+    positives = []
+    neutrals = []
+    negatives = []
+
+    for result in results:
+        name = result["source"]
+        dist: Counter = result["distribution"]
+
+        sources.append(name)
+        positives.append(dist.get("Positive", 0))
+        neutrals.append(dist.get("Neutral", 0))
+        negatives.append(dist.get("Negative", 0))
+
+    x = range(len(sources))
+    width = 0.25
+
+    plt.figure(figsize=(10, 6))
+    plt.bar([i - width for i in x], positives, width=width, label="Positive")
+    plt.bar(x, neutrals, width=width, label="Neutral")
+    plt.bar([i + width for i in x], negatives, width=width, label="Negative")
+
+    plt.xticks(list(x), sources)
+    plt.ylabel("Number of headlines")
+    plt.title("Sentiment Distribution by News Source")
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+
+# ---------------------------------------------------------
+#  Entry point
+# ---------------------------------------------------------
+
 def main() -> None:
     print("News Sentiment Analyzer")
     print("Scraping headlines and evaluating sentiment...\n")
@@ -159,6 +208,8 @@ def main() -> None:
 
     if results:
         print_summary(results)
+        print("\nGenerating sentiment chart...")
+        plot_sentiment_chart(results)
         print("\nAnalysis completed.")
     else:
         print("No data available — analysis skipped.")
@@ -166,3 +217,8 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+   
+
+
+   

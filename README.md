@@ -71,8 +71,3 @@ The tool prints:
 
 ## License  
 This project is released under the MIT License.
-
-
----
-
-## Example Output
